@@ -9,181 +9,212 @@ import java.util.List;
 
 @Service
 public class CampingService {
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private ProductTypeRepository productTypeRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private StockRepository stockRepository;
-
     @Autowired
     private OrderRepository orderRepository;
-
     @Autowired
     private OrderDetailRepository orderDetailRepository;
-
     @Autowired
     private ReportRepository reportRepository;
-
     @Autowired
     private ReviewRepository reviewRepository;
 
-    // User methods
+    // ========== User Methods ==========
     public List<User> findAllUsers() {
         return userRepository.findAll();
     }
-
+    
     public User findUserById(Integer id) {
         return userRepository.findById(id).orElse(null);
     }
-
+    
     public User saveUser(User user) {
         return userRepository.save(user);
     }
-
+    
     public void deleteUserById(Integer id) {
         userRepository.deleteById(id);
     }
+    
+    public User findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 
-    // ProductType methods
+    // ========== ProductType Methods ==========
     public List<ProductType> findAllProductTypes() {
         return productTypeRepository.findAll();
     }
-
+    
     public ProductType findProductTypeById(Integer id) {
         return productTypeRepository.findById(id).orElse(null);
     }
-
+    
     public ProductType saveProductType(ProductType productType) {
         return productTypeRepository.save(productType);
     }
-
+    
     public void deleteProductTypeById(Integer id) {
         productTypeRepository.deleteById(id);
     }
 
-    // Product methods
+    // ========== Product Methods ==========
     public List<Product> findAllProducts() {
         return productRepository.findAll();
     }
-
+    
     public Product findProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
     }
-
+    
     public Product saveProduct(Product product) {
         return productRepository.save(product);
     }
-
+    
     public void deleteProductById(Integer id) {
         productRepository.deleteById(id);
     }
+    
+    public List<Product> findProductsByProductType(ProductType productType) {
+        return productRepository.findByProductType(productType);
+    }
 
-    // Stock methods
+    // ========== Stock Methods ==========
     public List<Stock> findAllStocks() {
         return stockRepository.findAll();
     }
-
+    
     public Stock findStockById(Integer id) {
         return stockRepository.findById(id).orElse(null);
     }
-
+    
     public Stock saveStock(Stock stock) {
         return stockRepository.save(stock);
     }
-
+    
     public void deleteStockById(Integer id) {
         stockRepository.deleteById(id);
     }
+    
+    public Stock findStockByProduct(Product product) {
+        return stockRepository.findByProduct(product);
+    }
 
-    // Order methods
+    // ========== Order Methods ==========
     public List<Order> findAllOrders() {
         return orderRepository.findAll();
     }
-
+    
     public Order findOrderById(Integer id) {
         return orderRepository.findById(id).orElse(null);
     }
-
+    
     public Order saveOrder(Order order) {
         return orderRepository.save(order);
     }
-
+    
     public void deleteOrderById(Integer id) {
         orderRepository.deleteById(id);
     }
+    
+    public List<Order> findOrdersByUser(User user) {
+        return orderRepository.findByUser(user);
+    }
 
-    // OrderDetail methods
+    // ========== OrderDetail Methods ==========
     public List<OrderDetail> findAllOrderDetails() {
         return orderDetailRepository.findAll();
     }
-
+    
     public OrderDetail findOrderDetailById(Integer id) {
         return orderDetailRepository.findById(id).orElse(null);
     }
-
+    
     public OrderDetail saveOrderDetail(OrderDetail orderDetail) {
         return orderDetailRepository.save(orderDetail);
     }
-
+    
     public void deleteOrderDetailById(Integer id) {
         orderDetailRepository.deleteById(id);
     }
+    
+    public List<OrderDetail> findOrderDetailsByOrder(Order order) {
+        return orderDetailRepository.findByOrder(order);
+    }
 
-    // Report methods
+    // ========== Report Methods ==========
     public List<Report> findAllReports() {
         return reportRepository.findAll();
     }
-
+    
     public Report findReportById(Integer id) {
         return reportRepository.findById(id).orElse(null);
     }
-
+    
     public Report saveReport(Report report) {
         return reportRepository.save(report);
     }
-
+    
     public void deleteReportById(Integer id) {
         reportRepository.deleteById(id);
     }
+    
+    public List<Report> findReportsByUser(User user) {
+        return reportRepository.findByUser(user);
+    }
 
-    // Review methods
+    // ========== Review Methods ==========
     public List<Review> findAllReviews() {
         return reviewRepository.findAll();
     }
-
+    
     public Review findReviewById(Integer id) {
         return reviewRepository.findById(id).orElse(null);
     }
-
+    
     public Review saveReview(Review review) {
         return reviewRepository.save(review);
     }
-
+    
     public void deleteReviewById(Integer id) {
         reviewRepository.deleteById(id);
     }
-
-    // Additional business methods if needed
-    public void updateStockAfterOrder(Integer productId, Integer quantity) {
-        Stock stock = findStockById(productId);
-        if (stock != null) {
-            stock.setQty(stock.getQty() - quantity);
-            saveStock(stock);
-        }
+    
+    public List<Review> findReviewsByUser(User user) {
+        return reviewRepository.findByUser(user);
+    }
+    
+    public List<Review> findReviewsByProduct(Product product) {
+        return reviewRepository.findByProduct(product);
     }
 
-    public double calculateOrderTotal(List<OrderDetail> orderDetails) {
-        double total = 0.0;
-        for (OrderDetail detail : orderDetails) {
-            total += detail.getSubtotal().doubleValue();
+    // ========== Business Logic Methods ==========
+    public void updateStockAfterOrder(Integer productId, Integer quantity) {
+        Product product = findProductById(productId);
+        if (product != null) {
+            Stock stock = findStockByProduct(product);
+            if (stock != null) {
+                stock.setQty(stock.getQty() - quantity);
+                saveStock(stock);
+            }
         }
-        return total;
+    }
+    
+    public boolean isUsernameExists(String username) {
+        return findUserByUsername(username) != null;
+    }
+ // ใน CampingService เพิ่ม method นี้
+    public Integer getProductStockQuantity(Integer productId) {
+        Product product = findProductById(productId);
+        if (product != null && product.getStocks() != null && !product.getStocks().isEmpty()) {
+            return product.getStocks().get(0).getQty();
+        }
+        return 0;
     }
 }

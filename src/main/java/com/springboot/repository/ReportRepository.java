@@ -1,9 +1,10 @@
 package com.springboot.repository;
 
 import com.springboot.model.Report;
+import com.springboot.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
 public interface ReportRepository extends JpaRepository<Report, Integer> {
+    List<Report> findByUser(User user);
 }
